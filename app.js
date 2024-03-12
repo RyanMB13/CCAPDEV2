@@ -13,6 +13,31 @@ server.engine('hbs', handlebars.engine({
 
 server.use(express.static('public'));
 
+
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://127.0.0.1:27017/uniwall');
+
+function errorFn(err){
+    console.log('Error found. Please trace!');
+    console.error(err);
+}
+
+//Note: Mongoose adds an extra s at the end of the collection
+//it connects to. So "post" becomes "posts"
+
+const eventSchema = new mongoose.Schema({
+  event_title: { type: String },
+  event_poster: { type: String },
+  event_date: { type: String },
+  event_content: { type: String },
+  event_id: { type: String },
+  event_likes: { type: Number },
+  event_dislikes: { type: Number },
+  event_type: { type: String }
+},{ versionKey: false });
+
+const eventModel = mongoose.model('event', eventSchema);
+
 server.get('/', function(req, resp){
     resp.render('main',{
         layout: 'index',
@@ -21,17 +46,35 @@ server.get('/', function(req, resp){
 });
 
 server.get('/events', function(req, resp){
-    resp.render('events',{
-        layout: 'index',
-        title: 'UniWall Events'
-    });
+    const searchQuery = {};
+
+    eventModel.find(searchQuery).lean().then(function(event_data){
+        resp.render('events',{
+            layout: 'index',
+            title: 'UniWall Events',
+            event_data: event_data
+        });
+    }).catch(errorFn);
 });
 
-server.get('/eventpage', function(req, resp){
-    resp.render('eventpage',{
-        layout: 'index',
-        title: 'UniWall Event Page'
-    });
+
+server.get('/event/:event_id', function(req, resp) {
+    const searchQuery = req.params.event_id;
+
+    console.log('Event ID:', searchQuery);
+
+    eventModel.findOne({ event_id: searchQuery }).lean().then(function(event) {
+        console.log('Retrieved Event:', event);
+        if (event) {
+            resp.render('eventpage', {
+                layout: 'index',
+                title: 'UniWall Event Page',
+                event: event
+            });
+        } else {
+            resp.status(404).send('Event not found');
+        }
+    }).catch(errorFn);
 });
 
 server.get('/survey', function(req, resp){
