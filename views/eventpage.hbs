@@ -2,28 +2,32 @@
 <link href="/css/eventpage.css" rel="stylesheet"/>
 <body>
   {{> header }}
-
   {{> nav }}
-  
-   <div class="post" id="post{{event_type}}">
-   <div>
-     <h3>{{event_title}}</h3>
-     <p>Posted by: <a href="Profilepage.html">{{event_poster}}</a> | Date: {{event_date}}</p>
-     <p>{{event_content}}</p>
-   </div>
 
-  <div class="like-dislike">
-  <button type="button" class="btn btn-success like-btn">Like <span class="like-count">{{event_likes}}</span></button>
-  <button type="button" class="btn btn-danger dislike-btn">Dislike <span class="dislike-count">{{event_dislikes}}</span></button>
+  <div class="post">
+    <div>
+      <h3>{{event.event_title}}</h3>
+      <p>Posted by: <a href="/profile/{{event.event_poster}}">{{event.event_poster}}</a> | Date: {{event.event_date}}</p>
+      <p>{{event.event_content}}</p>
+    </div>
+
+    <div class="like-dislike">
+      <button type="button" class="btn btn-success like-btn">Like <span class="like-count">0<!--{{event.event_likes}}--></span></button>
+      <button type="button" class="btn btn-danger dislike-btn">Dislike <span class="dislike-count">0<!--{{event.event_dislikes}}--></span></button>
+    </div>
+
+    <div class="comments-section hidden">
+      <div class="new-comment">
+        <input type="text" placeholder="Add a comment..." class="comment-input">
+        <button type="button" class="btn btn-primary btn-add-comment">Add Comment</button>
+        {{#each comment}}
+        <div class="comment">
+        <p><strong>{{comment_poster}}</strong> | {{comment_date}}</p><p>{{comment_content}}</p>
+        </div> 
+        {{/each}}
+      </div>
+    </div>
   </div>
 
-
-   <div class="comments-section hidden">
-     <div class="new-comment">
-       <input type="text" placeholder="Add a comment..." class="comment-input">
-       <button type="button" class="btn btn-primary btn-add-comment">Add Comment</button>
-     </div>
-   </div>
-</div>
   <script src="/js/eventpage.js"></script>
 </body>
