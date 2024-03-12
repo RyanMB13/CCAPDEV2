@@ -1,0 +1,83 @@
+<!-- main -->
+<link href="/css/mainpage.css" rel="stylesheet"/>
+<body>
+  {{> header }}
+
+  {{> nav }}
+
+  <section>
+    <!-- Most Recent Posts Section -->
+    <h2>Welcome to UniWall</h2>
+    <button id="createPostBtn" class="btn btn-success">Create Post</button>
+
+    <div class="post card post-form" style="display: none;">
+      <form id="createPostForm">
+        <div class="mb-3">
+            <label for="postTitle" class="form-label">Post Title</label>
+            <input type="text" class="form-control" id="postTitle" required>
+        </div>
+        <div class="mb-3">
+            <label for="postContent" class="form-label">Post Content</label>
+            <textarea class="form-control" id="postContent" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="postImage" class="form-label">Upload Image</label>
+          <input type="file" class="form-control" id="postImage">
+        </div>
+        <button type="submit" class="btn btn-primary">Post it !</button>
+      </form>
+    </div>   
+
+    <div></div>
+
+    <div class="post">
+      <div>
+        <h3>Tamarind Tamaraws</h3>
+        <p>Posted by: <a href="sampleprofile5.html">kuya Fernando Eduardo Ubas</a> | Date: February 16, 2024 | 1:01 pm</p>
+        <p>FEU LETS GO!</p>
+        <button type ="button" class="btn btn-primary">Comment</button>
+      </div>
+    </div>
+
+    <div class="post">
+      <div>
+        <h3>UP not down</h3>
+        <p>Posted by: <a href="sampleprofile4.html">ate Dili Man</a> | Date: February 16, 2024 | 12:52 pm</p>
+        <p>Proud kami na Iskolar ng bayan.</p>
+        <button type ="button" class="btn btn-primary">Comment</button>
+      </div>
+    </div>
+
+    <div class="post">
+      <div>
+        <h3>Go USTEEEEEEEE</h3>
+        <p>Posted by: <a href="sampleprofile3.html">kuya jUSTin Swimmer</a> | Date: February 16, 2024 | 12:34 pm</p>
+        <p>Baka di niyo alam na kami ang oldest existing unibersidad sa Asya! Kaya madaling bumaha dito HAHA.</p>
+        <button type ="button" class="btn btn-primary">Comment</button>
+      </div>
+    </div>
+
+    <div class="post">
+      <div>
+        <h3>Ateneo Azul is Cool</h3>
+        <p>Posted by: <a href="sampleprofile2.html">ate Neo</a> | Date: February 16, 2024 | 12:21 pm</p>
+        <p>Did you know that Jose Rizal is an Atenean alumni?</p>
+        <button type ="button" class="btn btn-primary">Comment</button>
+      </div>
+    </div>
+
+    <div class="post">
+      <div>
+        <h3>D, LS, U, ANIMO LA SALLE</h3>
+        <p>Posted by: <a href="sampleprofile1.html">kuya Juan Archer</a> | Date: February 16, 2024 | 12:00 pm</p>
+        <p>First post dito mwahaha! Nauna kame, syempre naman taga La Salle naman ang gumawa nito!</p>
+        <button type ="button" class="btn btn-primary">Comment</button>
+      </div>
+    </div>
+    
+  </section>
+
+   <script src="/js/main.js"></script>
+
+</body>
+</html> 
