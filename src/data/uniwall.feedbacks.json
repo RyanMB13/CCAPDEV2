@@ -1,0 +1,45 @@
+[{
+  "_id": {
+    "$oid": "65f1977561f6cd153f338fab"
+  },
+  "post_id": "1",
+  "comment_author": "User123",
+  "comment_date": "December 14,2004",
+  "comment_content": "This is a great post! Thanks for sharing."
+},
+{
+  "_id": {
+    "$oid": "65f1978361f6cd153f338fac"
+  },
+  "post_id": "2",
+  "comment_author": "Guest456",
+  "comment_date": "March 2,2024",
+  "comment_content": "I have a question about the upcoming lecture. Can you provide more details?"
+},
+{
+  "_id": {
+    "$oid": "65f197aa61f6cd153f338fad"
+  },
+  "post_id": "4",
+  "comment_author": "JobSeeker",
+  "comment_date": "March 20,2024",
+  "comment_content": "Thanks for the information about the internships. I'll check it out."
+},
+{
+  "_id": {
+    "$oid": "65f197be61f6cd153f338fae"
+  },
+  "post_id": "5",
+  "comment_author": "ScienceLover",
+  "comment_date": "March 15,2024",
+  "comment_content": "Could someone explain the concept of quantum entanglement mentioned in the lecture?"
+},
+{
+  "_id": {
+    "$oid": "65f197d561f6cd153f338fb0"
+  },
+  "post_id": "3",
+  "comment_author": "MathGeek",
+  "comment_date": "March 18,2024",
+  "comment_content": "Count me in for the study group! Looking forward to it."
+}]
