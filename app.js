@@ -34,6 +34,14 @@ function errorFn(err) {
 // Note: Mongoose adds an extra s at the end of the collection
 // it connects to. So "post" becomes "posts"
 
+const userSchema = new mongoose.Schema({
+    user_name: { type: String },
+    user_password: { type: String },
+    user_id: { type: String }
+}, { versionKey: false });
+
+const userModel = mongoose.model('user', userSchema);
+
 const eventSchema = new mongoose.Schema({
     event_title: { type: String },
     event_poster: { type: String },
@@ -147,6 +155,30 @@ server.get('/event/:event_id', function (req, resp) {
     }).catch(errorFn);        
 });
 
+server.post('/login', function (req, resp) {
+    const username = req.body.user;
+    const password = req.body.pass;
+
+    console.log('Received username:', username);
+
+    userModel.findOne({ user_name: username }).lean().then(function (user) {
+        console.log('Database query result:', user);
+
+        if (!user) {
+            console.log('Username not found');
+            resp.status(404).json({ error: 'Username not found' });
+        } else if (user.user_password !== password) {
+            console.log('Incorrect password');
+            resp.status(401).json({ error: 'Incorrect password' });
+        } else {
+            console.log('Login successful for user:', username);
+            resp.status(200).json({ message: 'Login successful' });
+        }
+    }).catch(function (err) {
+        console.error('Error occurred during login:', err);
+        resp.status(500).json({ error: 'Internal server error' });
+    });
+});
 
 server.get('/survey', function (req, resp) {
     resp.render('survey', {

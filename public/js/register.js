@@ -13,5 +13,5 @@ function registerUser(event) {
     }
 
     alert("Registration successful! Redirecting to Login.");
-    window.location.href = "login.html";
+    window.location.href = "/login";
 }
