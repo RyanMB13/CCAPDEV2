@@ -1,0 +1,35 @@
+<!-- event page -->
+<link href="/css/maincomments.css" rel="stylesheet"/>
+<body>
+  {{> header }}
+  {{> nav }}
+
+  <div class="post">
+    <div>
+      <h3>{{post.post_title}}</h3>
+      <p>Posted by: <a href="/profile/{{post.post_auhtor}}">{{post.post_poster}}</a> | Date: {{post.post_date}}</p>
+      <p>{{post.post_content}}</p>
+    </div>
+
+    <div class="like-dislike">
+      <button type="button" class="btn btn-success like-btn">Like <span class="like-count">0</span></button>
+      <button type="button" class="btn btn-danger dislike-btn">Dislike <span class="dislike-count">0</span></button>
+    </div>
+
+    <div class="comments-section hidden">
+      <div class="new-comment">
+        <input type="text" placeholder="Add a comment..." class="comment-input">
+        <button type="button" class="btn btn-primary btn-add-comment">Add Comment</button>
+
+        {{#each feedback}}
+        <div class="comment">
+        <p><strong>{{comment_author}}</strong> | {{comment_date}}</p><p>{{comment_content}}</p>
+        </div> 
+       {{/each}}
+
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/maincomments.js"></script>
+</body>

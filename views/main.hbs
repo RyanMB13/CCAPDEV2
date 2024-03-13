@@ -31,50 +31,19 @@
     <div></div>
 
     <div class="post">
-      <div>
-        <h3>Tamarind Tamaraws</h3>
-        <p>Posted by: <a href="sampleprofile5.html">kuya Fernando Eduardo Ubas</a> | Date: February 16, 2024 | 1:01 pm</p>
-        <p>FEU LETS GO!</p>
-        <button type ="button" class="btn btn-primary">Comment</button>
+      {{#each post_data}}
+      <div class="post">
+        <div>
+          <h3>{{post_title}}</h3>
+          <p>Posted by: <a href="/profile/{{post_author}}">{{post_author}}</a> | Date: {{post_date}}</p>
+          <p>{{post_content}}</p>
+         <a href="/post/{{post_id}}" class="btn btn-primary">View Comments</a>
+        </div>
       </div>
-    </div>
-
-    <div class="post">
-      <div>
-        <h3>UP not down</h3>
-        <p>Posted by: <a href="sampleprofile4.html">ate Dili Man</a> | Date: February 16, 2024 | 12:52 pm</p>
-        <p>Proud kami na Iskolar ng bayan.</p>
-        <button type ="button" class="btn btn-primary">Comment</button>
-      </div>
-    </div>
-
-    <div class="post">
-      <div>
-        <h3>Go USTEEEEEEEE</h3>
-        <p>Posted by: <a href="sampleprofile3.html">kuya jUSTin Swimmer</a> | Date: February 16, 2024 | 12:34 pm</p>
-        <p>Baka di niyo alam na kami ang oldest existing unibersidad sa Asya! Kaya madaling bumaha dito HAHA.</p>
-        <button type ="button" class="btn btn-primary">Comment</button>
-      </div>
-    </div>
-
-    <div class="post">
-      <div>
-        <h3>Ateneo Azul is Cool</h3>
-        <p>Posted by: <a href="sampleprofile2.html">ate Neo</a> | Date: February 16, 2024 | 12:21 pm</p>
-        <p>Did you know that Jose Rizal is an Atenean alumni?</p>
-        <button type ="button" class="btn btn-primary">Comment</button>
-      </div>
-    </div>
-
-    <div class="post">
-      <div>
-        <h3>D, LS, U, ANIMO LA SALLE</h3>
-        <p>Posted by: <a href="sampleprofile1.html">kuya Juan Archer</a> | Date: February 16, 2024 | 12:00 pm</p>
-        <p>First post dito mwahaha! Nauna kame, syempre naman taga La Salle naman ang gumawa nito!</p>
-        <button type ="button" class="btn btn-primary">Comment</button>
-      </div>
-    </div>
+    {{/each}}
     
+    </div>
+
   </section>
 
    <script src="/js/main.js"></script>

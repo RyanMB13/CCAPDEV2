@@ -56,13 +56,60 @@ const commentSchema = new mongoose.Schema({
 
 const commentModel = mongoose.model('comment', commentSchema);
 
+const postSchema = new mongoose.Schema({
+    post_title: {type: String},
+    post_author: {type: String},
+    post_date: {type: String},
+    post_content: {type: String},
+    post_id: {type: String}
+}, {versionKey:false});
+
+const postModel = mongoose.model('post', postSchema);
+
+const feedbackSchema = new mongoose.Schema({
+    post_id: { type: String },
+    comment_author: { type: String },
+    comment_date: { type: String },
+    comment_content: { type: String },
+}, { versionKey: false });
+
+const feedbackModel = mongoose.model('feedback', feedbackSchema);
 
 server.get('/', function (req, resp) {
-    resp.render('main', {
-        layout: 'index',
-        title: 'UniWall Home'
-    });
+    const searchQuery = {};
+
+    postModel.find(searchQuery).lean().then(function (post_data) {
+        resp.render('main', {
+            layout      : 'index',
+            title       : 'UniWall Posts',
+            post_data   : post_data
+        });
+    }).catch(errorFn);
 });
+
+server.get('/post/:post_id', function (req, resp) {
+    const searchQuery = req.params.post_id;
+
+    console.log('Post ID:', searchQuery);
+
+    postModel.findOne({ post_id: searchQuery }).lean().then(function (post) {
+        feedbackModel.find({post_id: searchQuery}).lean().then(function (feedback) {
+            console.log('post Data Before Rendering:', post);
+            console.log('Comment Data Before Rendering:', feedback);
+            if (post) {
+                resp.render('maincomments', {
+                    layout           : 'index',
+                    title            : 'UniWall Event Page',
+                    post             :  post,
+                    feedback         :  feedback
+                });
+            } else {
+                resp.status(404).send('Post not found');
+            }
+        }).catch(errorFn);
+    }).catch(errorFn);        
+});
+
 
 server.get('/events', function (req, resp) {
     const searchQuery = {};
@@ -75,6 +122,7 @@ server.get('/events', function (req, resp) {
         });
     }).catch(errorFn);
 });
+
 
 server.get('/event/:event_id', function (req, resp) {
     const searchQuery = req.params.event_id;
@@ -98,6 +146,7 @@ server.get('/event/:event_id', function (req, resp) {
         }).catch(errorFn);
     }).catch(errorFn);        
 });
+
 
 server.get('/survey', function (req, resp) {
     resp.render('survey', {
