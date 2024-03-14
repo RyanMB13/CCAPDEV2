@@ -1,0 +1,23 @@
+[
+  {
+      "profile_id": "1",
+      "profile_picture": "/img/profile-picture1.png",
+      "full_name": "John Doe",
+      "occupation": "Computer Science Student",
+      "posts": [
+          {
+              "_id": "6137a91b4f64ae6c722cd7d1",
+              "title": "First Post",
+              "date": "2022-09-07T00:00:00.000Z",
+              "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+          }
+      ],
+      "badges": [
+          {
+              "_id": "6137a91b4f64ae6c722cd7e1",
+              "badge_class": "bg-success text-light",
+              "badge_text": "DLSU Student"
+          }
+      ]
+  }
+]
