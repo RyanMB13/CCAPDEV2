@@ -30,91 +30,23 @@
     </div>
 
     <div class="post">
-      <div>
-        <h3>A Study on the Perspectives of Undergraduate College Students from Various Universities towards the practice of Coding</h3>
-        <p>Posted by: <a href="sampleprofile1.html">kuya Juan Archer</a> | Date: February 17, 2024 | 3:07 am</p>
-        <p>Helloo po UniWall! I'm doing a study on the perceptions of undergraduate students from any university on coding. Please answer my survey: https://forms.gle/survey1-notreallink</p>
-        
-        <p>Status: Active</p>
+      {{#each survey_data}}
+      <div class="post">
+        <div>
+          <h3>{{survey_title}}</h3>
+          <p>Posted by: <a href="/survey/{{survey_author}}">{{survey_author}}</a> | Date: {{survey_date}}</p>
+          <p>{{survey_content}}</p>
+         <p>Status: {{survey_status}}</p>
 
-        <select id="sortDropdown" class=" form-select-sm">
+         <select id="sortDropdown" class=" form-select-sm">
             <option value="recent">---</option>
             <option value="popular">Answered!</option>
       
           </select>
+        </div>
       </div>
+    {{/each}}
+
     </div>
-
-    <div class="post">
-      <div>
-        <h3>A Study on the Perspectives of Undergraduate College Students in Manila that were previously based in Mindanao</h3>
-        <p>Posted by: <a href="sampleprofile2.html">ate Neo</a> | Date: February 16, 2024 | 10:45 pm</p>
-        <p>Magandang hapon po sa inyong lahat! Humihingi po kami ng tulong sa mga willing mag volunteer sa isang sarbey 
-            patungkol sa mga pananaw ng iba't ibang mga estudyante na galing Mindanao at pumunta sa Maynila upang makapag-aral sa mga 
-            Unibersidad dito. Ito po ang link: https://forms.gle/survey2-notreallink</p>
-        
-        <p>Status: Active</p>
-
-        <select id="sortDropdown" class=" form-select-sm">
-            <option value="recent">---</option>
-            <option value="popular">Answered!</option>
-      
-          </select>
-      </div>
-    </div>
-
-    <div class="post">
-      <div>
-        <h3>A Study on People's Personal Defining Factors of a Comfortable Room</h3>
-        <p>Posted by: <a href="sampleprofile3.html">kuya jUSTin Swimmer</a> | Date: February 16, 2024 | 9:11 pm</p>
-        <p>Hi guys !! Please help me with my thesis! I am an HRM student conducting a survey on what people want most 
-            when they think of a comfortable room. Please answer my survey: https://forms.gle/survey3-notreallink</p>
-        
-        <p>Status: Active</p>
-        
-        <select id="sortDropdown" class=" form-select-sm">
-            <option value="recent">---</option>
-            <option value="popular">Answered!</option>
-      
-          </select>
-      </div>
-    </div>
-
-    <div class="post">
-      <div>
-        <h3>A Study on the Perspectives of People on the President of the Philippines</h3>
-        <p>Posted by: <a href="sampleprofile4.html">ate Dili Man</a> | Date: February 16, 2024 | 6:20 pm</p>
-        <p>Hello po, ako si ate Dili Man! mayroon po akong sarbey na pwedeng sagutan ng lahat 
-            ng mga tao patungkol sa kanilang pananaw sa Presidente ng Pilipinas: https://forms.gle/survey4-notreallink</p>
-        
-        <p>Status: Active</p>
-
-        <select id="sortDropdown" class=" form-select-sm">
-            <option value="recent">---</option>
-            <option value="popular">Answered!</option>
-      
-          </select>
-
-      </div>
-    </div>
-
-    <div class="post">
-      <div>
-        <h3>A Study on the Effect of Playing Instruments on the Hands of Musicians</h3>
-        <p>Posted by: <a href="sampleprofile5.html">kuya Fernando Eduardo Ubas</a> | Date: February 16, 2024 | 5:04 pm</p>
-        <p>Hey hey hey!! If you have been playing any instrument for at least 3-4 years, I am conducting a survey on musician's hand muscles. 
-            Please answer my survey: https://forms.gle/survey5-notreallink</p>
-        
-        <p>Status: Active</p>
-
-        <select id="sortDropdown" class=" form-select-sm">
-            <option value="recent">---</option>
-            <option value="popular">Answered!</option>
-      
-          </select>        
-
-      </div>
-    </div>
-    
   </section>
 </body>

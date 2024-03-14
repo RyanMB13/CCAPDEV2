@@ -83,6 +83,17 @@ const feedbackSchema = new mongoose.Schema({
 
 const feedbackModel = mongoose.model('feedback', feedbackSchema);
 
+const surveySchema = new mongoose.Schema({
+    survey_id: { type: String },
+    survey_author: { type: String },
+    survey_date: { type: String },
+    survey_content: { type: String },
+    survey_status: { type: String },
+
+}, { versionKey: false });
+
+const surveyModel = mongoose.model('survey', surveySchema);
+
 server.get('/', function (req, resp) {
     const searchQuery = {};
 
@@ -181,10 +192,14 @@ server.post('/login', function (req, resp) {
 });
 
 server.get('/survey', function (req, resp) {
-    resp.render('survey', {
-        layout: 'index',
-        title: 'UniWall Survey Assistance'
-    });
+    const searchQuery = {};
+    surveyModel.find(searchQuery).lean().then(function (survey_data) {
+        resp.render('survey', {
+            layout      : 'index',
+            title       : 'UniWall Posts',
+            survey_data   : survey_data
+        });
+    }).catch(errorFn);
 });
 
 server.get('/login', function (req, resp) {
