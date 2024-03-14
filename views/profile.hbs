@@ -4,13 +4,14 @@
     {{> header }}
 
   {{> nav }}
-    
-    <main>
+
+    <div>
+        {{#each profile_data}}
         <div class="profile-info">
-            <img src="/img/profile-picture.png" >
+            <img src="{{profile_picture}}" >
             <div class="user-details">
-                <h2>John Doe</h2>
-                <p>Computer Science Student</p>
+                <h2>{{full_name}}</h2>
+                <p>{{occupation}}</p>
             </div>
         </div>
 
@@ -20,23 +21,22 @@
 
         <div class="user-posts">
             <h2>User Posts</h2>
+            {{#each posts}}
             <div class="post">
-                <h3>Topic title</h3>
-                <p>Date: January 1, 2024</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vel ex eget libero fermentum bibendum vel vel justo.</p>
+                <h3>{{title}}</h3>
+                <p>Date: {{date}}</p>
+                <p>{{content}}</p>
             </div>
-            <!-- Add more posts as needed -->
+            {{/each}}
         </div>
 
         <div class="badges">
             <h2>Badges</h2>
-            <div class="badge bg-success text-light">DLSU Student</div>
-            <div class="badge bg-danger text-light">UP Student</div>
-            <div class="badge bg-warning ">UST Student</div>
-            <div class="badge bg-success text-light">DLSU Student Goverment Member</div>
-            <div class="badge text-dark">+</div>
-            <!-- Add more badges as needed -->
+            {{#each badges}}
+            <div class="badge {{badge_class}}">{{badge_text}}</div>
+            {{/each}}
         </div>
-    </main>
+        {{/each}}
+    </div>
 
 </body>
