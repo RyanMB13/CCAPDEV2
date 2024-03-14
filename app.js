@@ -94,6 +94,14 @@ const surveySchema = new mongoose.Schema({
 
 const surveyModel = mongoose.model('survey', surveySchema);
 
+const profileSchema = new mongoose.Schema({
+    profile_name: { type: String },
+    profile_course: { type: String },
+    profile_picture: { type: String }
+}, { versionKey: false });
+
+const profileModel = mongoose.model('profile', profileSchema);
+
 server.get('/', function (req, resp) {
     const searchQuery = {};
 
@@ -200,6 +208,24 @@ server.get('/survey', function (req, resp) {
             survey_data   : survey_data
         });
     }).catch(errorFn);
+});
+
+server.get('/profile/:post_author', function (req, res) {
+    const searchQuery = req.params.post_author;
+    profileModel.findOne({ profile_name: searchQuery }).lean().then(function (profile) {
+        postModel.find({ post_author: searchQuery }).lean().then(function (post) {
+            if (profile) {
+                res.render('profile', {
+                    layout: 'index',
+                    title: 'UniWall Profile',
+                    profile: profile, 
+                    post: post
+                });
+            } else {
+                res.status(404).send('Profile not found');
+            }
+        }).catch(errorFn);
+    });
 });
 
 server.get('/login', function (req, resp) {
