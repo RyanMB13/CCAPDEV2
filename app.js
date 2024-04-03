@@ -114,6 +114,25 @@ server.get('/', function (req, resp) {
     }).catch(errorFn);
 });
 
+// Define a schema for the counter collection
+const counterSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    value: { type: Number, default: 1 }
+});
+
+// Create a model for the counter collection
+const counterModel = mongoose.model('counter', counterSchema);
+
+// Function to get the next value of the counter and increment it
+async function getNextSequenceValue(sequenceName) {
+    const sequenceDocument = await counterModel.findOneAndUpdate(
+        { name: sequenceName },
+        { $inc: { value: 1 } },
+        { new: true, upsert: true }
+    );
+    return sequenceDocument.value;
+}
+
 server.get('/post/:post_id', function (req, resp) {
     const searchQuery = req.params.post_id;
 
@@ -135,6 +154,77 @@ server.get('/post/:post_id', function (req, resp) {
             }
         }).catch(errorFn);
     }).catch(errorFn);        
+});
+
+// Route to handle displaying the edit form for a specific post
+server.get('/editPost/:postId', function (req, res) {
+    const postId = req.params.postId;
+
+    // Retrieve the post data from the database
+    postModel.findOne({ post_id: postId })
+        .then(post => {
+            if (!post) {
+                res.status(404).send('Post not found');
+            } else {
+                // Render the edit form with the existing data pre-filled
+                res.render('editPost', { post: post });
+            }
+        })
+        .catch(error => {
+            console.error('Error finding post:', error);
+            res.status(500).send('Internal Server Error');
+        });
+});
+
+// Route to handle editing a post
+server.post('/editPost/:postId', function (req, res) {
+    const postId = req.params.postId;
+    const { postTitle, postContent } = req.body;
+
+    // Update the post data in the database
+    postModel.findOneAndUpdate({ post_id: postId }, { post_title: postTitle, post_content: postContent })
+        .then(updatedPost => {
+            if (!updatedPost) {
+                res.status(404).send('Post not found');
+            } else {
+                res.redirect('/'); // Redirect to main page after successful edit
+            }
+        })
+        .catch(error => {
+            console.error('Error updating post:', error);
+            res.status(500).send('Internal Server Error');
+        });
+});
+
+
+
+// Route handler for handling form submission
+server.post('/submitPost', async function (req, res) {
+    // Extract data from form submission
+    const { postTitle, postAuthor, postContent, postDate } = req.body;
+
+    // Get the next value of the counter and use it as the post ID
+    const postId = await getNextSequenceValue('post_id');
+
+    // Create new post document
+    const newPost = new postModel({
+        post_id: postId, // Assign the retrieved ID to the post
+        post_title: postTitle,
+        post_author: postAuthor,
+        post_date: postDate,
+        post_content: postContent
+    });
+
+    // Save the new post to the database
+    newPost.save()
+        .then(savedPost => {
+            console.log('New post saved:', savedPost);
+            res.redirect('/'); // Redirect to main page after successful submission
+        })
+        .catch(error => {
+            console.error('Error saving post:', error);
+            res.status(500).send('Error saving post');
+        });
 });
 
 
