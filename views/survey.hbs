@@ -3,48 +3,60 @@
 <body>
     {{> header }}
 
-  {{> nav }}
- <section>
-    <!-- Most Recent Posts Section -->
-    <h2>Survey Assistance</h2>
+    {{> nav }}
+    <section>
+        <!-- Most Recent Posts Section -->
+        <h2>Survey Assistance</h2>
 
-    <p></p>
+        <p></p>
 
-    <div class="post card post-form">
-      <form id="createPostForm">
-        <div class="mb-3">
-            <label for="postTitle" class="form-label">Survey Title</label>
-            <input type="text" class="form-control" id="postTitle" required>
+        <button id="showSurveyFormBtn" class="btn btn-primary">Post Survey</button>
+
+        <div id="surveyFormContainer" style="display: none;">
+            <form id="addSurveyForm" action="/addSurvey" method="POST">
+                <div class="mb-3">
+                    <label for="survey_title" class="form-label">Survey Title</label>
+                    <input type="text" class="form-control" id="survey_title" name="survey_title" required>
+                </div>
+                <div class="mb-3">
+                    <label for="survey_description" class="form-label">Survey Description</label>
+                    <textarea class="form-control" id="survey_description" name="survey_description" rows="3" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="survey_date" class="form-label">Survey Date</label>
+                    <input type="text" class="form-control" id="survey_date" name="survey_date" value="" required>
+                </div>
+                <div class="mb-3">
+                    <label for="survey_status" class="form-label">Survey Status</label>
+                    <input type="text" class="form-control" id="survey_status" name="survey_status" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Survey</button>
+            </form>
         </div>
-        <div class="mb-3">
-            <label for="postContent" class="form-label">Survey Description</label>
-            <textarea class="form-control" id="postContent" rows="3" required></textarea>
+
+        <div class="post">
+            {{#each survey_data}}
+            <div class="post">
+                <div>
+                    <h3>{{survey_title}}</h3>
+                    <p>Posted by: <a href="/survey/{{survey_author}}">{{survey_author}}</a> | Date: {{survey_date}}</p>
+                    <p>{{survey_content}}</p>
+                    <p>Status: {{survey_status}}</p>
+                    <button id="showCommentsBtn" class="btn btn-primary" onclick="toggleComments()">View Comments</button>
+                      <div id="commentsContainer" style: "display : block;">
+                        {{#each insight}}
+                          <div class="comment">
+                            <p><strong>{{comment_author}}</strong> | {{comment_date}}</p>
+                            <p>{{comment_content}}</p>
+                          </div> 
+                        {{/each}}
+                      </div>
+                </div>
+            </div>
+            {{/each}}
         </div>
-        <div class="mb-3">
-          <label for="postImage" class="form-label">Upload Image</label>
-          <input type="file" class="form-control" id="postImage">
-      </div>
+    </section>
 
-        <button type="submit" class="btn btn-primary">Create Post</button>
-      </form>
-    </div>
-
-    <div class="post">
-      {{#each survey_data}}
-      <div class="post">
-        <div>
-          <h3>{{survey_title}}</h3>
-          <p>Posted by: <a href="/survey/{{survey_author}}">{{survey_author}}</a> | Date: {{survey_date}}</p>
-          <p>{{survey_content}}</p>
-         <p>Status: {{survey_status}}</p>
-        <select id="sortDropdown" class=" form-select-sm">
-            <option value="recent">---</option>
-            <option value="popular">Answered!</option>
-      
-          </select>
-      </div>
-      <script src="/js/surveycomment.js"></script>
-    </div>
-    {{/each}}
-  </section>
+    <script src="/js/survey.js"></script>
+    <script src="/js/surveycomment.js"></script>
 </body>
