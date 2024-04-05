@@ -19,12 +19,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
 
+            const responseData = await response.json();
+
             if (response.ok) {
-                const responseData = await response.json();
                 alert(responseData.message); 
-                window.location.href = '/';
+                window.location.href = '/main';
             } else {
-                const responseData = await response.json();
                 alert(responseData.error);
             }
         } catch (error) {
