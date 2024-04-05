@@ -27,6 +27,18 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 mongoose.connect('mongodb://127.0.0.1:27017/uniwall');
 
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
+const session = require('express-session');
+
+server.use(session({
+    secret: 'a secret fruit',
+    resave: false,
+    saveUninitialized: true,
+}));
+
+
 function errorFn(err) {
     console.log('Error found. Please trace!');
     console.error(err);
@@ -38,7 +50,7 @@ function errorFn(err) {
 const userSchema = new mongoose.Schema({
     user_name: { type: String },
     user_password: { type: String },
-    user_id: { type: String }
+    visible: {type: Boolean}
 }, { versionKey: false });
 
 const userModel = mongoose.model('user', userSchema);
@@ -92,24 +104,14 @@ const feedbackModel = mongoose.model('feedback', feedbackSchema);
 
 const surveySchema = new mongoose.Schema({
     survey_id: { type: String },
-    survey_title: {type: String},
     survey_author: { type: String },
     survey_date: { type: String },
-    survey_description: { type: String },
+    survey_content: { type: String },
     survey_status: { type: String },
 
 }, { versionKey: false });
 
 const surveyModel = mongoose.model('survey', surveySchema);
-
-const insightSchema = new mongoose.Schema({
-    survey_id: { type: String },
-    comment_author: { type: String },
-    comment_date: { type: String },
-    comment_content: { type: String },
-}, { versionKey: false });
-
-const insightModel = mongoose.model('insight', insightSchema);
 
 const profileSchema = new mongoose.Schema({
     profile_name: { type: String },
@@ -120,13 +122,21 @@ const profileSchema = new mongoose.Schema({
 const profileModel = mongoose.model('profile', profileSchema);
 
 server.get('/', function (req, resp) {
+    resp.render('login', {
+        layout: 'index',
+        title: 'UniWall Login'
+    });
+});
+
+server.get('/main', function (req, resp) {
     const searchQuery = {};
 
     postModel.find(searchQuery).lean().then(function (post_data) {
         resp.render('main', {
-            layout      : 'index',
-            title       : 'UniWall Posts',
-            post_data   : post_data
+            layout: 'index',
+            title: 'UniWall Posts',
+            post_data: post_data,
+            session: req.session // Pass session data to the template
         });
     }).catch(errorFn);
 });
@@ -164,7 +174,8 @@ server.get('/post/:post_id', function (req, resp) {
                     layout           : 'index',
                     title            : 'UniWall Event Page',
                     post             :  post,
-                    feedback         :  feedback
+                    feedback         :  feedback,
+                    session: req.session // Pass session data to the template
                 });
             } else {
                 resp.status(404).send('Post not found');
@@ -175,8 +186,12 @@ server.get('/post/:post_id', function (req, resp) {
 
 server.post('/submitPost', async function (req, res) {
     try {
-
         const { postTitle, postDate, postContent, postType } = req.body;
+
+        // Check if the user is logged in
+        if (!req.session.username) {
+            return res.status(401).send('You must be logged in to submit a post');
+        }
 
         // Get the number of posts in the database
         const numPostsResponse = await fetch('http://localhost:9090/getNumPosts');
@@ -192,7 +207,7 @@ server.post('/submitPost', async function (req, res) {
         const newPost = new postModel({
             _id: new mongoose.Types.ObjectId(),
             post_title: postTitle,
-            post_author: "User", // TODO: set as logged in user
+            post_author: req.session.username, // Use the username from the session
             post_date: postDate,
             post_content: postContent,
             post_likes: 0, 
@@ -205,12 +220,13 @@ server.post('/submitPost', async function (req, res) {
         // Save the new post to the database
         const savedPost = await newPost.save();
         console.log('New Post saved:', savedPost);
-        res.redirect('/'); 
+        res.redirect('/main'); 
     } catch (error) {
         console.error('Error saving Post:', error);
         res.status(500).send('Error saving Post');
     }
 });
+
 
 // Define a schema for the counter collection for post_id
 const postCounterSchema = new mongoose.Schema({
@@ -248,10 +264,15 @@ server.post('/submitComment', function(req, res) {
     const postId = req.body.postId;
     const commentText = req.body.commentText;
 
+    // Check if the user is logged in
+    if (!req.session.username) {
+        return res.status(401).send('You must be logged in to submit a comment');
+    }
+
     // Create a new comment document
     const newComment = new feedbackModel({
         post_id: postId,
-        comment_author: "User", // You can modify this to get the actual user who is logged in
+        comment_author: req.session.username, // Use the username from the session
         comment_date: new Date().toLocaleString(),
         comment_content: commentText
     });
@@ -267,6 +288,7 @@ server.post('/submitComment', function(req, res) {
             res.status(500).send('Error saving comment');
         });
 });
+
 
 server.post('/likePost/:postId', async function (req, res) {
     const postId = req.params.postId;
@@ -376,7 +398,8 @@ server.get('/events', function (req, resp) {
         resp.render('events', {
             layout      : 'index',
             title       : 'UniWall Events',
-            event_data  : event_data
+            event_data  : event_data,
+            session: req.session // Pass session data to the template
         });
     }).catch(errorFn);
 });
@@ -396,7 +419,8 @@ server.get('/event/:event_id', function (req, resp) {
                     layout      : 'index',
                     title       : 'UniWall Event Page',
                     event       : event,
-                    comment     : comment
+                    comment     : comment,
+                    session: req.session // Pass session data to the template
                 });
             } else {
                 resp.status(404).send('Event not found');
@@ -459,8 +483,12 @@ server.get('/getNumEvents', async function (req, res) {
 
 server.post('/submitEvent', async function (req, res) {
     try {
-
         const { eventTitle, eventDate, eventContent, eventType } = req.body;
+
+        // Check if the user is logged in
+        if (!req.session.username) {
+            return res.status(401).send('You must be logged in to submit an event');
+        }
 
         // Get the number of events in the database
         const numEventsResponse = await fetch('http://localhost:9090/getNumEvents');
@@ -476,7 +504,7 @@ server.post('/submitEvent', async function (req, res) {
         const newEvent = new eventModel({
             _id: new mongoose.Types.ObjectId(),
             event_title: eventTitle,
-            event_poster: "User", // TODO: set as logged in user
+            event_poster: req.session.username, // Use the username from the session
             event_date: eventDate,
             event_content: eventContent,
             event_likes: 0, 
@@ -496,6 +524,7 @@ server.post('/submitEvent', async function (req, res) {
         res.status(500).send('Error saving event');
     }
 });
+
 
 
 server.get('/getNextEventId', async function (req, res) {
@@ -587,32 +616,88 @@ server.post('/deleteEvent/:eventId', async function (req, res) {
     }
 });
 
+server.post('/register', async function (req, res) {
+    try {
+        const { username, password } = req.body;
+
+        // Check if the username already exists in the database
+        const existingUser = await userModel.findOne({ user_name: username });
+        if (existingUser) {
+            return res.status(400).send('Username already exists');
+        }
+
+        // Generate a salt to hash the password
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        // Create new user document
+        const newUser = new userModel({
+            user_name: username,
+            user_password: hashedPassword,
+            visible: true
+        });
+
+        // Save the new user to the database
+        const savedUser = await newUser.save();
+        console.log('New User saved:', savedUser);
+
+        // Create a new profile for the user
+        const newProfile = new profileModel({
+            profile_name: username,
+            profile_course: 'Student', 
+            profile_picture: '/img/profile-picture.png' 
+        });
+
+        // Save the new profile to the database
+        const savedProfile = await newProfile.save();
+        console.log('New Profile saved:', savedProfile);
+
+        res.status(200).send('Registration successful');
+    } catch (error) {
+        console.error('Error registering user:', error);
+        res.status(500).send('Error registering user');
+    }
+});
 
 
-server.post('/login', function (req, resp) {
+server.post('/login', async function (req, res) {
     const username = req.body.user;
     const password = req.body.pass;
 
     console.log('Received username:', username);
 
-    userModel.findOne({ user_name: username }).lean().then(function (user) {
-        console.log('Database query result:', user);
+    try {
+        // Find the user by username
+        const user = await userModel.findOne({ user_name: username }).lean();
 
         if (!user) {
             console.log('Username not found');
-            resp.status(404).json({ error: 'Username not found' });
-        } else if (user.user_password !== password) {
-            console.log('Incorrect password');
-            resp.status(401).json({ error: 'Incorrect password' });
-        } else {
-            console.log('Login successful for user:', username);
-            resp.status(200).json({ message: 'Login successful' });
+            return res.status(404).json({ error: 'Username not found' });
         }
-    }).catch(function (err) {
-        console.error('Error occurred during login:', err);
-        resp.status(500).json({ error: 'Internal server error' });
-    });
+
+        // Compare the hashed password with the provided password
+        const passwordMatch = await bcrypt.compare(password, user.user_password); // Check this line
+
+        if (!passwordMatch) {
+            console.log('Incorrect password');
+            return res.status(401).json({ error: 'Incorrect password' });
+        }
+
+        // Password is correct, login successful
+        console.log('Login successful for user:', username);
+
+        // Store the username in the session
+        req.session.username = username;
+
+        // Redirect to '/main'
+        res.status(200).json({ message: 'Login successful', redirect: '/main' });
+    } catch (error) {
+        console.error('Error occurred during login:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
+
+
 
 server.get('/survey', function (req, resp) {
     const searchQuery = {};
@@ -620,40 +705,11 @@ server.get('/survey', function (req, resp) {
         resp.render('survey', {
             layout      : 'index',
             title       : 'UniWall Posts',
-            survey_data   : survey_data
+            survey_data   : survey_data,
+            session: req.session // Pass session data to the template
         });
     }).catch(errorFn);
 });
-
-server.post('/addSurvey', async function (req, res) {
-    try {
-        const { survey_title, survey_description, survey_date, survey_status } = req.body;
-
-        // Get the last survey in the collection
-        const lastSurvey = await surveyModel.findOne({}, {}, { sort: { 'survey_id': -1 } });
-
-        survey_id = parseInt(lastSurvey.survey_id) + 1;
-
-        // Create new Survey document
-        const newSurvey = new surveyModel({
-            survey_id,
-            survey_title,
-            survey_author : "User",
-            survey_description,
-            survey_date,
-            survey_status
-        });
-
-        // Save the new survey to the database
-        const savedSurvey = await newSurvey.save();
-        console.log('New Survey saved:', savedSurvey);
-        res.redirect('/survey'); // Redirect to the survey page
-    } catch (error) {
-        console.error('Error saving Survey:', error);
-        res.status(500).send('Error saving Survey');
-    }
-});
-
 
 server.get('/profile/:post_author', function (req, res) {
     const searchQuery = req.params.post_author;
@@ -664,7 +720,8 @@ server.get('/profile/:post_author', function (req, res) {
                     layout: 'index',
                     title: 'UniWall Profile',
                     profile: profile, 
-                    post: post
+                    post: post,
+                    session: req.session // Pass session data to the template
                 });
             } else {
                 res.status(404).send('Profile not found');
@@ -690,9 +747,24 @@ server.get('/register', function (req, resp) {
 server.get('/profile', function (req, resp) {
     resp.render('profile', {
         layout: 'index',
-        title: 'UniWall Profile'
+        title: 'UniWall Profile',
+        session: req.session // Pass session data to the template
     });
 });
+
+// Route handler for handling user logout
+server.get('/logout', function(req, res) {
+    // Destroy the user's session
+    req.session.destroy(function(err) {
+        if (err) {
+            console.error('Error destroying session:', err);
+            res.status(500).send('Error logging out');
+        } else {
+            res.redirect('/login'); // Redirect to login page or wherever you want after logout
+        }
+    });
+});
+
 
 function finalClose(){
     console.log('Close connection at the end!');
