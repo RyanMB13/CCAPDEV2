@@ -1,0 +1,45 @@
+[{
+  "_id": {
+    "$oid": "661010d25acc77ca8b042674"
+  },
+  "survey_id": "1",
+  "comment_author": "LemonMan",
+  "comment_date": "2024-02-17",
+  "comment_content": "I'll also get my friends to answer the survey, they definitely fit the sample you are looking for."
+},
+{
+  "_id": {
+    "$oid": "661010d25acc77ca8b042675"
+  },
+  "survey_id": "2",
+  "comment_author": "WeathHer",
+  "comment_date": "2024-03-08",
+  "comment_content": "I don't quite understand the purpose of this survey."
+},
+{
+  "_id": {
+    "$oid": "661010d25acc77ca8b042676"
+  },
+  "survey_id": "3",
+  "comment_author": "Porohoho",
+  "comment_date": "2024-04-21",
+  "comment_content": "Why did you have to ask for my email two different times in the survey?"
+},
+{
+  "_id": {
+    "$oid": "661010d25acc77ca8b042677"
+  },
+  "survey_id": "4",
+  "comment_author": "Wowee",
+  "comment_date": "2024-04-04",
+  "comment_content": "I can't wait to see your findings!"
+},
+{
+  "_id": {
+    "$oid": "661010d25acc77ca8b042678"
+  },
+  "survey_id": "5",
+  "comment_author": "ZamnWham",
+  "comment_date": "2024-03-22",
+  "comment_content": "I'm glad to have helped!"
+}]

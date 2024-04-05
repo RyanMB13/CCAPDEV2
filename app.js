@@ -92,14 +92,24 @@ const feedbackModel = mongoose.model('feedback', feedbackSchema);
 
 const surveySchema = new mongoose.Schema({
     survey_id: { type: String },
+    survey_title: {type: String},
     survey_author: { type: String },
     survey_date: { type: String },
-    survey_content: { type: String },
+    survey_description: { type: String },
     survey_status: { type: String },
 
 }, { versionKey: false });
 
 const surveyModel = mongoose.model('survey', surveySchema);
+
+const insightSchema = new mongoose.Schema({
+    survey_id: { type: String },
+    comment_author: { type: String },
+    comment_date: { type: String },
+    comment_content: { type: String },
+}, { versionKey: false });
+
+const insightModel = mongoose.model('insight', insightSchema);
 
 const profileSchema = new mongoose.Schema({
     profile_name: { type: String },
@@ -614,6 +624,36 @@ server.get('/survey', function (req, resp) {
         });
     }).catch(errorFn);
 });
+
+server.post('/addSurvey', async function (req, res) {
+    try {
+        const { survey_title, survey_description, survey_date, survey_status } = req.body;
+
+        // Get the last survey in the collection
+        const lastSurvey = await surveyModel.findOne({}, {}, { sort: { 'survey_id': -1 } });
+
+        survey_id = parseInt(lastSurvey.survey_id) + 1;
+
+        // Create new Survey document
+        const newSurvey = new surveyModel({
+            survey_id,
+            survey_title,
+            survey_author : "User",
+            survey_description,
+            survey_date,
+            survey_status
+        });
+
+        // Save the new survey to the database
+        const savedSurvey = await newSurvey.save();
+        console.log('New Survey saved:', savedSurvey);
+        res.redirect('/survey'); // Redirect to the survey page
+    } catch (error) {
+        console.error('Error saving Survey:', error);
+        res.status(500).send('Error saving Survey');
+    }
+});
+
 
 server.get('/profile/:post_author', function (req, res) {
     const searchQuery = req.params.post_author;

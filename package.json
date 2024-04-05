@@ -1,0 +1,17 @@
+{
+  "name": "ccapdev2",
+  "version": "1.0.0",
+  "description": "1. Create a Database in MongoDB Compass titled \"uniwall\".\r 2. Within the uniwall database, create collections titled: \"comments\", \"events\", \"feedbacks\", \"posts\", \"users\", \"profiles\", and \"surveys\".\r 3. In the folder /src/data there are json files with the naming convention uniwall.\"{{collection name}}\".json.\r 4. Using the add data feature in MongoDB Compass, import the corresponding json files to the collection with the same name.\r 5. Run the project by calling node app.js in the terminal.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express-session": "^1.18.0"
+  },
+  "devDependencies": {}
+}
