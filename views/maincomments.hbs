@@ -25,6 +25,7 @@
       <div class="new-comment">
         <input type="text" placeholder="Add a comment..." class="comment-input">
         <button type="button" class="btn btn-primary btn-add-comment">Add Comment</button>
+        
         {{#each comment}}
           <div class="comment">
             <p><strong>{{comment_poster}}</strong> | {{comment_date}}</p><p>{{comment_content}}</p>
