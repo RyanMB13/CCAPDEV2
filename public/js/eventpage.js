@@ -1,38 +1,59 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const likeBtn = document.querySelector('.like-btn');
-    const dislikeBtn = document.querySelector('.dislike-btn');
-    const likeCount = document.querySelector('.like-count');
-    const dislikeCount = document.querySelector('.dislike-count');
+  const likeBtns = document.querySelectorAll('.like-btn');
+  const dislikeBtns = document.querySelectorAll('.dislike-btn');
 
-    let likeCounter = 0;
-    let dislikeCounter = 0;
-
-    likeBtn.addEventListener('click', function () {
-      likeCounter++;
-      likeCount.textContent = likeCounter;
-    });
-
-    dislikeBtn.addEventListener('click', function () {
-      dislikeCounter++;
-      dislikeCount.textContent = dislikeCounter;
-    });
-
-    const commentInput = document.querySelector('.comment-input');
-    const btnAddComment = document.querySelector('.btn-add-comment');
-    const commentsSection = document.querySelector('.comments-section');
-
-    btnAddComment.addEventListener('click', function () {
-      const commentText = commentInput.value;
-      if (commentText.trim() !== '') {
-        const newComment = document.createElement('div');
-        newComment.classList.add('comment');
-        
-        const timestamp = new Date().toLocaleString();
-        newComment.innerHTML = `<p><strong>You</strong> | ${timestamp}</p><p>${commentText}</p>`;
-        
-        commentsSection.appendChild(newComment);
-
-        commentInput.value = '';
+  likeBtns.forEach(likeBtn => {
+    likeBtn.addEventListener('click', async function () {
+      const eventId = this.dataset.eventId;
+      try {
+        const response = await fetch(`/likeEvent/${eventId}`, {
+          method: 'POST',
+        });
+        if (!response.ok) {
+          throw new Error('Failed to like event');
+        }
+        const data = await response.json();
+        const likeCount = this.querySelector('.like-count');
+        likeCount.textContent = data.likes;
+      } catch (error) {
+        console.error('Error liking event:', error);
       }
     });
   });
+
+  dislikeBtns.forEach(dislikeBtn => {
+    dislikeBtn.addEventListener('click', async function () {
+      const eventId = this.dataset.eventId;
+      try {
+        const response = await fetch(`/dislikeEvent/${eventId}`, {
+          method: 'POST',
+        });
+        if (!response.ok) {
+          throw new Error('Failed to dislike event');
+        }
+        const data = await response.json();
+        const dislikeCount = this.querySelector('.dislike-count');
+        dislikeCount.textContent = data.dislikes;
+      } catch (error) {
+        console.error('Error disliking event:', error);
+      }
+    });
+  });
+
+  const deleteEventBtn = document.querySelector('.delete-event-btn');
+
+  deleteEventBtn.addEventListener('click', async function () {
+    const eventId = this.dataset.eventId;
+    try {
+      const response = await fetch(`/deleteEvent/${eventId}`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete event');
+      }
+      window.location.href = '/events'; 
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    }
+  });
+});

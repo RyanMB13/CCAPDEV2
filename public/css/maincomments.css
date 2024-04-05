@@ -106,9 +106,6 @@ body {
     margin-top: 10px;
   }
   
-  .comment-input {
-    width: 90%; 
-}
   .post .comments-section .comment-input {
     width: 90%;
     padding: 5px;
@@ -135,7 +132,3 @@ body {
     margin-right: 5px;
   }
 
-  .btn-add-comment{
-    padding: 5px 10px;
-    margin-right: 5px;
-  }

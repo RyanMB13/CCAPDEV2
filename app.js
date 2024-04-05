@@ -24,6 +24,7 @@ server.engine('hbs', hbs.engine);
 server.use(express.static('public'));
 
 const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 mongoose.connect('mongodb://127.0.0.1:27017/uniwall');
 
 function errorFn(err) {
@@ -43,6 +44,7 @@ const userSchema = new mongoose.Schema({
 const userModel = mongoose.model('user', userSchema);
 
 const eventSchema = new mongoose.Schema({
+    _id: mongoose.Schema.Types.ObjectId,
     event_title: { type: String },
     event_poster: { type: String },
     event_date: { type: String },
@@ -50,8 +52,10 @@ const eventSchema = new mongoose.Schema({
     event_id: { type: String },
     event_likes: { type: Number },
     event_dislikes: { type: Number },
-    event_type: { type: String }
+    event_type: { type: String },
+    visible: { type: Boolean }
 }, { versionKey: false });
+
 
 const eventModel = mongoose.model('event', eventSchema);
 
@@ -279,6 +283,7 @@ server.post('/submitComment', function(req, res) {
 
 
 
+
 server.get('/events', function (req, resp) {
     const searchQuery = {};
 
@@ -315,6 +320,132 @@ server.get('/event/:event_id', function (req, resp) {
     }).catch(errorFn);        
 });
 
+server.post('/likeEvent/:eventId', async function (req, res) {
+    const eventId = req.params.eventId;
+    try {
+        const updatedEvent = await eventModel.findOneAndUpdate({ event_id: eventId }, { $inc: { event_likes: 1 } }, { new: true });
+        if (!updatedEvent) {
+            return res.status(404).json({ error: 'Event not found' });
+        }
+        const likes = parseInt(updatedEvent.event_likes);
+        res.json({ likes });
+    } catch (error) {
+        console.error('Error liking event:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+server.post('/dislikeEvent/:eventId', async function (req, res) {
+    const eventId = req.params.eventId;
+    try {
+        const updatedEvent = await eventModel.findOneAndUpdate({ event_id: eventId }, { $inc: { event_dislikes: 1 } }, { new: true });
+
+        if (!updatedEvent) {
+            return res.status(404).json({ error: 'Event not found' });
+        }
+        const dislikes = parseInt(updatedEvent.event_dislikes);
+        res.json({ dislikes });
+    } catch (error) {
+        console.error('Error disliking event:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Define a schema for the counter collection for event_id
+const eventCounterSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    value: { type: Number, default: 1 }
+});
+
+// Create a model for the counter collection for event_id
+const eventCounterModel = mongoose.model('eventCounter', eventCounterSchema);
+
+// Function to get the next value of the counter for event_id and increment it
+// Function to get the next value of the counter for event_id and increment it
+async function getNextEventId() {
+    try {
+        // Get the last event from the database
+        const lastEvent = await eventModel.findOne().sort({ event_id: -1 });
+
+        let nextEventId = 1; // Default value if no events are in the database
+
+        if (lastEvent) {
+            nextEventId = parseInt(lastEvent.event_id) + 1;
+        }
+
+        console.log('Last Event:', lastEvent);
+        console.log('Next Event ID:', nextEventId);
+
+        return nextEventId;
+    } catch (error) {
+        console.error('Error getting next event ID:', error);
+        throw error; // Propagate the error for handling in the calling function
+    }
+}
+
+// Route handler to get the number of events in the database
+server.get('/getNumEvents', async function (req, res) {
+    try {
+        const numEvents = await eventModel.countDocuments();
+        res.json(numEvents);
+    } catch (error) {
+        console.error('Error getting number of events:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+server.post('/submitEvent', async function (req, res) {
+    try {
+        const { eventTitle, eventPoster, eventDate, eventContent, eventType } = req.body;
+
+        // Get the number of events in the database
+        const numEventsResponse = await fetch('http://localhost:9090/getNumEvents');
+        if (!numEventsResponse.ok) {
+            throw new Error('Failed to get the number of events');
+        }
+        const numEvents = await numEventsResponse.json();
+
+        // Parse the number of events to an integer
+        const numEventsInt = parseInt(numEvents);
+
+        // Create new event document
+        const newEvent = new eventModel({
+            _id: new mongoose.Types.ObjectId(),
+            event_title: eventTitle,
+            event_poster: eventPoster,
+            event_date: eventDate,
+            event_content: eventContent,
+            event_likes: 0, 
+            event_dislikes: 0, 
+            event_type: eventType, 
+            visible: true,
+            // Convert the event ID back to a string
+            event_id: (numEventsInt + 1).toString()
+        });
+
+        // Save the new event to the database
+        const savedEvent = await newEvent.save();
+        console.log('New event saved:', savedEvent);
+        res.redirect('/events'); 
+    } catch (error) {
+        console.error('Error saving event:', error);
+        res.status(500).send('Error saving event');
+    }
+});
+
+
+server.get('/getNextEventId', async function (req, res) {
+    try {
+        const nextEventId = await getNextSequenceValue('event_id');
+        res.json(nextEventId);
+    } catch (error) {
+        console.error('Error getting next event ID:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 server.post('/login', function (req, resp) {
     const username = req.body.user;
     const password = req.body.pass;
@@ -339,6 +470,21 @@ server.post('/login', function (req, resp) {
         resp.status(500).json({ error: 'Internal server error' });
     });
 });
+
+server.post('/deleteEvent/:eventId', async function (req, res) {
+    const eventId = req.params.eventId;
+    try {
+        const updatedEvent = await eventModel.findOneAndUpdate({ event_id: eventId }, { visible: false }, { new: true });
+        if (!updatedEvent) {
+            return res.status(404).json({ error: 'Event not found' });
+        }
+        res.redirect('/events');
+    } catch (error) {
+        console.error('Error deleting event:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 server.get('/survey', function (req, resp) {
     const searchQuery = {};

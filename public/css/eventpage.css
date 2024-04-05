@@ -131,4 +131,19 @@ body {
     margin-left: 10px;
     margin-right: 5px;
   }
+  /* Add/Delete Event button */
+.post .delete-event-btn {
+  position: absolute;
+  top: 190px;
+  right: 50px;
+  margin-top: 10px;
+  margin-right: 10px;
+}
+
+/* Comments section */
+.post .comments-section {
+  margin-top: 20px;
+  position: relative; /* Make the parent container for absolute positioning */
+}
+
 
