@@ -4,6 +4,7 @@
 2. Within the uniwall database, create collections titled: "comments", "events", "feedbacks", "posts", "users", "profiles", and "surveys".
 3. In the folder /src/data there are json files with the naming convention uniwall."{{collection name}}".json.
 4. Using the add data feature in MongoDB Compass, import the corresponding json files to the collection with the same name.
-5. Run the project by calling node app.js in the terminal.
+5. install the following packages with: npm install express express-handlebars mongoose bcrypt express-session
+6. Run the project by calling node app.js in the terminal.
 
 

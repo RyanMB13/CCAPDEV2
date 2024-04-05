@@ -614,6 +614,29 @@ server.post('/login', function (req, resp) {
     });
 });
 
+server.get('/survey/:survey_id', function (req, resp) {
+    const searchQuery = req.params.survey_id;
+
+    console.log('survey ID:', searchQuery);
+
+    postModel.findOne({ post_id: searchQuery }).lean().then(function (survey) {
+        insightModel.find({post_id: searchQuery}).lean().then(function (insight) {
+            console.log('post Data Before Rendering:', survey);
+            console.log('Comment Data Before Rendering:', insight);
+            if (post) {
+                resp.render('maincomments', {
+                    layout           : 'index',
+                    title            : 'UniWall Event Page',
+                    survey           : survey,
+                    insight         :  insight
+                });
+            } else {
+                resp.status(404).send('Post not found');
+            }
+        }).catch(errorFn);
+    }).catch(errorFn);        
+});
+
 server.get('/survey', function (req, resp) {
     const searchQuery = {};
     surveyModel.find(searchQuery).lean().then(function (survey_data) {
