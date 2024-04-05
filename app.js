@@ -73,7 +73,10 @@ const postSchema = new mongoose.Schema({
     post_author: {type: String},
     post_date: {type: String},
     post_content: {type: String},
-    post_id: {type: String}
+    post_id: {type: String},
+    post_likes: { type: Number },
+    post_dislikes: { type: Number },
+    visible: { type: Boolean }
 }, {versionKey:false});
 
 const postModel = mongoose.model('post', postSchema);
@@ -160,47 +163,6 @@ server.get('/post/:post_id', function (req, resp) {
     }).catch(errorFn);        
 });
 
-// Route to handle displaying the edit form for a specific post
-server.get('/editPost/:postId', function (req, res) {
-    const postId = req.params.postId;
-
-    // Retrieve the post data from the database
-    postModel.findOne({ post_id: postId })
-        .then(post => {
-            if (!post) {
-                res.status(404).send('Post not found');
-            } else {
-                // Render the edit form with the existing data pre-filled
-                res.render('editPost', { post: post });
-            }
-        })
-        .catch(error => {
-            console.error('Error finding post:', error);
-            res.status(500).send('Internal Server Error');
-        });
-});
-
-// Route to handle editing a post
-server.post('/editPost/:postId', function (req, res) {
-    const postId = req.params.postId;
-    const { postTitle, postContent } = req.body;
-
-    // Update the post data in the database
-    postModel.findOneAndUpdate({ post_id: postId }, { post_title: postTitle, post_content: postContent })
-        .then(updatedPost => {
-            if (!updatedPost) {
-                res.status(404).send('Post not found');
-            } else {
-                res.redirect('/'); // Redirect to main page after successful edit
-            }
-        })
-        .catch(error => {
-            console.error('Error updating post:', error);
-            res.status(500).send('Internal Server Error');
-        });
-});
-
-
 // Route handler for handling form submission
 server.post('/submitPost', async function (req, res) {
     try {
@@ -234,23 +196,34 @@ server.post('/submitPost', async function (req, res) {
     }
 });
 
-// Route to handle deleting a post
-server.post('/deletePost', function(req, res) {
-    const postId = req.body.postId;
+// Define a schema for the counter collection for event_id
+const postCounterSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    value: { type: Number, default: 1 }
+});
 
-    // Delete the post from the database
-    postModel.findOneAndDelete({ post_id: postId })
-        .then(deletedPost => {
-            if (!deletedPost) {
-                res.status(404).send('Post not found');
-            } else {
-                res.status(200).send('Post deleted successfully');
-            }
-        })
-        .catch(error => {
-            console.error('Error deleting post:', error);
-            res.status(500).send('Internal Server Error');
-        });
+// Create a model for the counter collection for event_id
+const postCounterModel = mongoose.model('postCounter', postCounterSchema);
+
+// Route handler to get the number of events in the database
+server.get('/getNumPosts', async function (req, res) {
+    try {
+        const numPost = await postModel.countDocuments();
+        res.json(numPosts);
+    } catch (error) {
+        console.error('Error getting number of Posts:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+server.get('/getNextPostId', async function (req, res) {
+    try {
+        const nextPostId = await getNextSequenceValue('post_id');
+        res.json(nextPostId);
+    } catch (error) {
+        console.error('Error getting next post ID:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 });
 
 
@@ -278,6 +251,106 @@ server.post('/submitComment', function(req, res) {
             res.status(500).send('Error saving comment');
         });
 });
+
+server.post('/likePost/:postId', async function (req, res) {
+    const postId = req.params.postId;
+    try {
+        const updatedPost = await postModel.findOneAndUpdate({ post_id: postId }, { $inc: { post_likes: 1 } }, { new: true });
+        if (!updatedPost) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+        const likes = parseInt(updatedPost.post_likes);
+        res.json({ likes });
+    } catch (error) {
+        console.error('Error liking Post:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+server.post('/dislikePost/:postId', async function (req, res) {
+    const postId = req.params.postId;
+    try {
+        const updatedPost = await postModel.findOneAndUpdate({ post_id: postId }, { $inc: { post_dislikes: 1 } }, { new: true });
+
+        if (!updatedPost) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+        const dislikes = parseInt(updatedPost.post_dislikes);
+        res.json({ dislikes });
+    } catch (error) {
+        console.error('Error disliking post:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+server.get('/getNextEventId', async function (req, res) {
+    try {
+        const nextEventId = await getNextSequenceValue('event_id');
+        res.json(nextEventId);
+    } catch (error) {
+        console.error('Error getting next event ID:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+// Route to handle displaying the edit form for a specific post
+server.get('/editPost/:postId', function (req, res) {
+    const postId = req.params.postId;
+
+    // Retrieve the event data from the database
+    postModel.findOne({ post_id: postId })
+        .then(post => {
+            if (!post) {
+                res.status(404).send('post not found');
+            } else {
+                // Render the edit form with the existing data pre-filled
+                res.render('editPost', { post: post });
+            }
+        })
+        .catch(error => {
+            console.error('Error finding post:', error);
+            res.status(500).send('Internal Server Error');
+        });
+});
+
+// Route to handle editing an event
+server.post('/editPost/:postId', function (req, res) {
+    const postId = req.params.postId;
+    const { postTitle, postContent } = req.body;
+
+    // Update the event data in the database
+    postModel.findOneAndUpdate({ post_id: postId }, { post_title: postTitle, post_content: postContent })
+        .then(updatedPost => {
+            if (!updatedPost) {
+                res.status(404).send('post not found');
+            } else {
+                res.redirect(`/post/${postId}`); // Redirect back to the event page after successful edit
+            }
+        })
+        .catch(error => {
+            console.error('Error updating post:', error);
+            res.status(500).send('Internal Server Error');
+        });
+});
+
+
+server.post('/deletePost/:postId', async function (req, res) {
+    const postId = req.params.postId;
+    try {
+        const updatedPost = await postModel.findOneAndUpdate({ post_id: postId }, { visible: false }, { new: true });
+        if (!updatedPost) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+        res.redirect('/');
+    } catch (error) {
+        console.error('Error deleting post:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+
 
 
 server.get('/events', function (req, resp) {
