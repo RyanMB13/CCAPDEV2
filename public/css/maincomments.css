@@ -131,11 +131,11 @@ nav a.active {
   margin-left: 10px;
   margin-right: 5px;
 }
-/* Add/Edit/Delete Event buttons */
+
 .post .delete-post-btn {
 position: absolute;
 top: 190px;
-right: 50px; /* Adjust the position to make space for the edit button */
+right: 50px; 
 margin-top: 10px;
 margin-right: 10px;
 }
@@ -149,14 +149,12 @@ margin-right: 10px;
 color: white;
 }
 
-/* Comments section */
 .post .comments-section {
 margin-top: 20px;
-position: relative; /* Make the parent container for absolute positioning */
+position: relative; 
 }
 
-/* Adjust the width of the comment input field */
 .comment-input {
-  width: 90%; /* Adjust the width as needed */
-  /* Other styling properties */
+  width: 90%; 
+
 }
