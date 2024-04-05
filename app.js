@@ -163,40 +163,46 @@ server.get('/post/:post_id', function (req, resp) {
     }).catch(errorFn);        
 });
 
-// Route handler for handling form submission
 server.post('/submitPost', async function (req, res) {
     try {
-        // Extract data from form submission
-        const { postTitle, postAuthor, postContent, postDate } = req.body;
 
-        // Get the last post from the database
-        const lastPost = await postModel.findOne().sort({ post_id: -1 });
+        const { postTitle, postDate, postContent, postType } = req.body;
 
-        let nextPostId = 1; // Default value if no posts are in the database
-
-        if (lastPost) {
-            nextPostId = parseInt(lastPost.post_id) + 1;
+        // Get the number of posts in the database
+        const numPostsResponse = await fetch('http://localhost:9090/getNumPosts');
+        if (!numPostsResponse.ok) {
+            throw new Error('Failed to get the number of Posts');
         }
-        // Create new post document
+        const numPosts = await numPostsResponse.json();
+
+        // Parse the number of Posts to an integer
+        const numPostsInt = parseInt(numPosts);
+
+        // Create new Post document
         const newPost = new postModel({
-            post_id: nextPostId, // Assign the next available ID to the post
+            _id: new mongoose.Types.ObjectId(),
             post_title: postTitle,
-            post_author: postAuthor,
+            post_author: "User", // TODO: set as logged in user
             post_date: postDate,
-            post_content: postContent
+            post_content: postContent,
+            post_likes: 0, 
+            post_dislikes: 0, 
+            visible: true,
+            // Convert the post ID back to a string
+            post_id: (numPostsInt + 1).toString()
         });
 
         // Save the new post to the database
         const savedPost = await newPost.save();
-        console.log('New post saved:', savedPost);
-        res.redirect('/'); // Redirect to main page after successful submission
+        console.log('New Post saved:', savedPost);
+        res.redirect('/'); 
     } catch (error) {
-        console.error('Error saving post:', error);
-        res.status(500).send('Error saving post');
+        console.error('Error saving Post:', error);
+        res.status(500).send('Error saving Post');
     }
 });
 
-// Define a schema for the counter collection for event_id
+// Define a schema for the counter collection for post_id
 const postCounterSchema = new mongoose.Schema({
     name: { type: String, required: true },
     value: { type: Number, default: 1 }
@@ -208,7 +214,7 @@ const postCounterModel = mongoose.model('postCounter', postCounterSchema);
 // Route handler to get the number of events in the database
 server.get('/getNumPosts', async function (req, res) {
     try {
-        const numPost = await postModel.countDocuments();
+        const numPosts = await postModel.countDocuments();
         res.json(numPosts);
     } catch (error) {
         console.error('Error getting number of Posts:', error);

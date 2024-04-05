@@ -37,6 +37,7 @@
 
         <div class="post">
             {{#each post_data}}
+            {{#if visible}}
             <div class="post">
                 <div>
                     <h3>{{post_title}}</h3>
@@ -45,6 +46,7 @@
                     <a href="/post/{{post_id}}" class="btn btn-primary">View Comments</a>
                 </div>
             </div>
+            {{/if}}
             {{/each}}
 
         </div>
