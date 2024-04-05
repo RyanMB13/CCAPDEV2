@@ -231,6 +231,52 @@ server.post('/submitPost', async function (req, res) {
     }
 });
 
+// Route to handle deleting a post
+server.post('/deletePost', function(req, res) {
+    const postId = req.body.postId;
+
+    // Delete the post from the database
+    postModel.findOneAndDelete({ post_id: postId })
+        .then(deletedPost => {
+            if (!deletedPost) {
+                res.status(404).send('Post not found');
+            } else {
+                res.status(200).send('Post deleted successfully');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting post:', error);
+            res.status(500).send('Internal Server Error');
+        });
+});
+
+
+// Add a route to handle comment submission
+server.post('/submitComment', function(req, res) {
+    const postId = req.body.postId;
+    const commentText = req.body.commentText;
+
+    // Create a new comment document
+    const newComment = new feedbackModel({
+        post_id: postId,
+        comment_author: "User", // You can modify this to get the actual user who is logged in
+        comment_date: new Date().toLocaleString(),
+        comment_content: commentText
+    });
+
+    // Save the new comment to the database
+    newComment.save()
+        .then(savedComment => {
+            console.log('New comment saved:', savedComment);
+            res.redirect(`/post/${postId}`); // Redirect back to the post page after successful submission
+        })
+        .catch(error => {
+            console.error('Error saving comment:', error);
+            res.status(500).send('Error saving comment');
+        });
+});
+
+
 
 
 server.get('/events', function (req, resp) {
