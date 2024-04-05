@@ -498,6 +498,30 @@ server.get('/getNextEventId', async function (req, res) {
     }
 });
 
+server.post('/submitEventComment', function(req, res) {
+    const eventId = req.body.eventId;
+    const commentText = req.body.commentText;
+
+    // Create a new comment document
+    const newComment = new commentModel({
+        event_id: eventId,
+        comment_poster: "User", // You can modify this to get the actual user who is logged in
+        comment_date: new Date().toLocaleString(),
+        comment_content: commentText
+    });
+
+    // Save the new comment to the database
+    newComment.save()
+        .then(savedComment => {
+            console.log('New comment saved:', savedComment);
+            res.redirect(`/event/${eventId}`); // Redirect back to the event page after successful submission
+        })
+        .catch(error => {
+            console.error('Error saving comment:', error);
+            res.status(500).send('Error saving comment');
+        });
+});
+
 // Route to handle displaying the edit form for a specific event
 server.get('/editEvent/:eventId', function (req, res) {
     const eventId = req.params.eventId;
