@@ -344,6 +344,16 @@ server.get('/profile', function (req, resp) {
     });
 });
 
+function finalClose(){
+    console.log('Close connection at the end!');
+    mongoose.connection.close();
+    process.exit();
+}
+
+process.on('SIGTERM',finalClose);
+process.on('SIGINT',finalClose);
+process.on('SIGQUIT', finalClose);
+
 const port = process.env.PORT || 9090;
 server.listen(port, function () {
     console.log('Listening at port ' + port);
