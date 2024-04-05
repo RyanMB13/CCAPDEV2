@@ -200,32 +200,37 @@ server.post('/editPost/:postId', function (req, res) {
 
 // Route handler for handling form submission
 server.post('/submitPost', async function (req, res) {
-    // Extract data from form submission
-    const { postTitle, postAuthor, postContent, postDate } = req.body;
+    try {
+        // Extract data from form submission
+        const { postTitle, postAuthor, postContent, postDate } = req.body;
 
-    // Get the next value of the counter and use it as the post ID
-    const postId = await getNextSequenceValue('post_id');
+        // Get the last post from the database
+        const lastPost = await postModel.findOne().sort({ post_id: -1 });
 
-    // Create new post document
-    const newPost = new postModel({
-        post_id: postId, // Assign the retrieved ID to the post
-        post_title: postTitle,
-        post_author: postAuthor,
-        post_date: postDate,
-        post_content: postContent
-    });
+        let nextPostId = 1; // Default value if no posts are in the database
 
-    // Save the new post to the database
-    newPost.save()
-        .then(savedPost => {
-            console.log('New post saved:', savedPost);
-            res.redirect('/'); // Redirect to main page after successful submission
-        })
-        .catch(error => {
-            console.error('Error saving post:', error);
-            res.status(500).send('Error saving post');
+        if (lastPost) {
+            nextPostId = parseInt(lastPost.post_id) + 1;
+        }
+        // Create new post document
+        const newPost = new postModel({
+            post_id: nextPostId, // Assign the next available ID to the post
+            post_title: postTitle,
+            post_author: postAuthor,
+            post_date: postDate,
+            post_content: postContent
         });
+
+        // Save the new post to the database
+        const savedPost = await newPost.save();
+        console.log('New post saved:', savedPost);
+        res.redirect('/'); // Redirect to main page after successful submission
+    } catch (error) {
+        console.error('Error saving post:', error);
+        res.status(500).send('Error saving post');
+    }
 });
+
 
 
 server.get('/events', function (req, resp) {
