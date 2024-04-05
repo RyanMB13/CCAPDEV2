@@ -53,10 +53,10 @@ async function submitEvent(event) {
   event.preventDefault();
 
   const eventTitle = document.getElementById('eventTitle').value;
-  const eventPoster = document.getElementById('eventPoster').value;
   const eventDate = document.getElementById('eventDate').value;
   const eventContent = document.getElementById('eventContent').value;
   const eventType = document.getElementById('eventType').value;
+  const eventPoster = "TEMPORARY USER NOT YET IMPLEMENTED";
 
   try {
     // Get the next event ID from the server
