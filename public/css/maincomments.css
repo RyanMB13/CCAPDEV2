@@ -155,3 +155,8 @@ margin-top: 20px;
 position: relative; /* Make the parent container for absolute positioning */
 }
 
+/* Adjust the width of the comment input field */
+.comment-input {
+  width: 90%; /* Adjust the width as needed */
+  /* Other styling properties */
+}
